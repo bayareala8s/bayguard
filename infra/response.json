@@ -1,0 +1,1 @@
+{"statusCode": 200, "headers": {"Content-Type": "application/json"}, "body": "{\"scan_id\": \"03314043-b99e-4c02-943b-5782e10dc8d7\", \"status\": \"COMPLETED\", \"findings_count\": 101, \"started_at\": \"2025-11-29T18:42:35.294963+00:00\", \"completed_at\": \"2025-11-29T18:42:48.487529+00:00\"}"}

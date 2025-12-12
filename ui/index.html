@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>BayGuard Demo Console</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #0b1020;
+      color: #f9fafb;
+    }
+    header {
+      padding: 1.5rem 2rem;
+      border-bottom: 1px solid #1f2937;
+      background: linear-gradient(90deg, #111827, #020617);
+    }
+    header h1 {
+      margin: 0;
+      font-size: 1.6rem;
+    }
+    header p {
+      margin: 0.4rem 0 0;
+      color: #9ca3af;
+      font-size: 0.9rem;
+    }
+    main {
+      padding: 1.5rem 2rem 2rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .card {
+      background: #020617;
+      border: 1px solid #1f2937;
+      border-radius: 0.75rem;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    .card h2 {
+      margin: 0 0 0.6rem;
+      font-size: 1.1rem;
+    }
+    .card p {
+      margin: 0 0 0.75rem;
+      color: #9ca3af;
+      font-size: 0.9rem;
+    }
+    label {
+      display: block;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #9ca3af;
+      margin-bottom: 0.25rem;
+    }
+    input[type="text"], textarea {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 0.55rem 0.7rem;
+      border-radius: 0.45rem;
+      border: 1px solid #374151;
+      background: #020617;
+      color: #f9fafb;
+      font-family: inherit;
+      font-size: 0.9rem;
+    }
+    input[type="text"]:focus, textarea:focus {
+      outline: none;
+      border-color: #38bdf8;
+      box-shadow: 0 0 0 1px rgba(56,189,248,0.3);
+    }
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .row > div {
+      flex: 1 1 260px;
+    }
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 0.5rem 1.1rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+      background: linear-gradient(90deg, #22c55e, #22d3ee);
+      color: #020617;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    button.secondary {
+      background: #111827;
+      color: #e5e7eb;
+      border: 1px solid #374151;
+    }
+    button:disabled {
+      opacity: 0.6;
+      cursor: default;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      font-size: 0.75rem;
+      border-radius: 999px;
+      padding: 0.1rem 0.55rem;
+      border: 1px solid #374151;
+      color: #9ca3af;
+    }
+    .pill span.dot {
+      width: 0.4rem;
+      height: 0.4rem;
+      border-radius: 999px;
+      background: #22c55e;
+    }
+    pre {
+      background: #020617;
+      border-radius: 0.45rem;
+      padding: 0.75rem 0.9rem;
+      border: 1px solid #1f2937;
+      font-size: 0.8rem;
+      max-height: 320px;
+      overflow: auto;
+      margin: 0.3rem 0 0;
+    }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+    .muted {
+      color: #6b7280;
+      font-size: 0.8rem;
+    }
+    .badge {
+      display: inline-block;
+      padding: 0.1rem 0.5rem;
+      border-radius: 999px;
+      background: rgba(34,197,94,0.15);
+      color: #bbf7d0;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      border: 1px solid rgba(34,197,94,0.4);
+      margin-left: 0.5rem;
+    }
+    @media (max-width: 720px) {
+      header, main {
+        padding-left: 1rem;
+        padding-right: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+<header>
+  <h1>BayGuard Demo Console<span class="badge">MVP</span></h1>
+  <p>Trigger scans, generate reports, and get AI explanations against your AWS account.</p>
+</header>
+<main>
+  <div class="card">
+    <div class="row" style="align-items:flex-end; gap:1.25rem;">
+      <div>
+        <label for="apiBase">API Base URL</label>
+        <input id="apiBase" type="text" placeholder="https://bayguard.bayareala8s.com" />
+        <div class="muted">If empty, the placeholder above will be used.</div>
+      </div>
+      <div style="flex:0 0 auto;">
+        <span class="pill"><span class="dot"></span><span id="statusLabel">Idle</span></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>1. Run a Scan</h2>
+    <p>Calls <code>POST /scan</code> to kick off a posture scan across S3, IAM, Lambda, Step Functions, EventBridge, SQS, and AWS Transfer Family.</p>
+    <button id="btnScan">Run Scan</button>
+    <div class="muted" id="lastScanMeta" style="margin-top:0.6rem;"></div>
+    <pre id="scanOutput"><code>// Scan response will appear here</code></pre>
+  </div>
+
+  <div class="card">
+    <h2>2. Generate Report</h2>
+    <p>Calls <code>POST /report</code> to generate an HTML report in S3. You can use the latest scan or a specific <code>scan_id</code>.</p>
+    <div class="row">
+      <div>
+        <label for="scanId">Scan ID (optional)</label>
+        <input id="scanId" type="text" placeholder="If empty, uses LATEST_SCAN" />
+      </div>
+    </div>
+    <div style="margin-top:0.75rem; display:flex; gap:0.75rem; flex-wrap:wrap;">
+      <button id="btnReportLatest">Generate Report (Latest Scan)</button>
+      <button id="btnReportForId" class="secondary">Generate Report for Scan ID</button>
+    </div>
+    <pre id="reportOutput"><code>// Report response will appear here</code></pre>
+  </div>
+
+  <div class="card">
+    <h2>3. AI Explanation</h2>
+    <p>Send a single finding and choose a persona to see how BayGuard explains the risk and remediation.</p>
+    <div class="row">
+      <div>
+        <label for="persona">Persona</label>
+        <input id="persona" type="text" value="developer" />
+        <div class="muted">Try <code>developer</code>, <code>architect</code>, or <code>executive</code>.</div>
+      </div>
+    </div>
+    <label for="findingJson" style="margin-top:0.75rem;">Finding JSON</label>
+    <textarea id="findingJson">{
+  "id": "demo",
+  "service": "s3",
+  "issue": "bucket_public_access_block_missing",
+  "severity": "HIGH",
+  "resource_arn": "arn:aws:s3:::example-bucket"
+}</textarea>
+    <div style="margin-top:0.75rem;">
+      <button id="btnExplain">Explain Finding</button>
+    </div>
+    <pre id="aiOutput"><code>// AI explanation response will appear here</code></pre>
+  </div>
+</main>
+
+<script>
+  function getApiBase() {
+    const input = document.getElementById('apiBase');
+    const value = (input.value || '').trim();
+    return value || 'https://bayguard.bayareala8s.com';
+  }
+
+  function setStatus(text) {
+    document.getElementById('statusLabel').textContent = text;
+  }
+
+  function setJsonOutput(id, obj) {
+    const el = document.getElementById(id);
+    el.textContent = '';
+    const code = document.createElement('code');
+    code.textContent = typeof obj === 'string' ? obj : JSON.stringify(obj, null, 2);
+    el.appendChild(code);
+  }
+
+  async function callApi(path, body) {
+    const base = getApiBase().replace(/\/$/, '');
+    const url = base + path;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body || {})
+    });
+    const text = await res.text();
+    let json;
+    try {
+      json = JSON.parse(text);
+    } catch (e) {
+      json = { raw: text };
+    }
+    return { status: res.status, json };
+  }
+
+  document.getElementById('btnScan').addEventListener('click', async () => {
+    setStatus('Running scan...');
+    setJsonOutput('scanOutput', '// Running scan...');
+    try {
+      const { status, json } = await callApi('/scan', {});
+      setStatus('Scan completed (HTTP ' + status + ')');
+      setJsonOutput('scanOutput', json);
+      if (json && json.scan_id) {
+        document.getElementById('scanId').value = json.scan_id;
+        document.getElementById('lastScanMeta').textContent = 'Last scan_id: ' + json.scan_id;
+      }
+    } catch (e) {
+      setStatus('Error');
+      setJsonOutput('scanOutput', String(e));
+    }
+  });
+
+  document.getElementById('btnReportLatest').addEventListener('click', async () => {
+    setStatus('Generating report for latest scan...');
+    setJsonOutput('reportOutput', '// Generating report for latest scan...');
+    try {
+      const { status, json } = await callApi('/report', { mode: 'LATEST_SCAN' });
+      setStatus('Report completed (HTTP ' + status + ')');
+      setJsonOutput('reportOutput', json);
+    } catch (e) {
+      setStatus('Error');
+      setJsonOutput('reportOutput', String(e));
+    }
+  });
+
+  document.getElementById('btnReportForId').addEventListener('click', async () => {
+    const scanId = document.getElementById('scanId').value.trim();
+    if (!scanId) {
+      alert('Please enter a scan_id first or use "Generate Report (Latest Scan)".');
+      return;
+    }
+    setStatus('Generating report for scan_id...');
+    setJsonOutput('reportOutput', '// Generating report for scan_id ' + scanId + '...');
+    try {
+      const { status, json } = await callApi('/report', { scan_id: scanId });
+      setStatus('Report completed (HTTP ' + status + ')');
+      setJsonOutput('reportOutput', json);
+    } catch (e) {
+      setStatus('Error');
+      setJsonOutput('reportOutput', String(e));
+    }
+  });
+
+  document.getElementById('btnExplain').addEventListener('click', async () => {
+    const persona = (document.getElementById('persona').value || 'developer').trim().toLowerCase();
+    let finding;
+    try {
+      finding = JSON.parse(document.getElementById('findingJson').value);
+    } catch (e) {
+      alert('Finding JSON is not valid JSON.');
+      return;
+    }
+    setStatus('Requesting AI explanation...');
+    setJsonOutput('aiOutput', '// Requesting AI explanation...');
+    try {
+      const { status, json } = await callApi('/ai/explain', { persona, finding });
+      setStatus('AI explanation ready (HTTP ' + status + ')');
+      setJsonOutput('aiOutput', json);
+    } catch (e) {
+      setStatus('Error');
+      setJsonOutput('aiOutput', String(e));
+    }
+  });
+</script>
+</body>
+</html>

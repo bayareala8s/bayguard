@@ -1,0 +1,12 @@
+# Terraform local state and providers
+.terraform/
+*.tfstate
+*.tfstate.backup
+
+# Python bytecode
+__pycache__/
+*.pyc
+
+# OS / editor junk
+.DS_Store
+.vscode/
