@@ -138,6 +138,14 @@ def lambda_handler(event, context):
         ContentType="text/html",
     )
 
+    # Generate a short-lived presigned URL so the HTML report can be opened
+    # directly from the demo UI without changing the bucket's public access.
+    presigned_url = s3.generate_presigned_url(
+        ClientMethod="get_object",
+        Params={"Bucket": REPORTS_BUCKET, "Key": key},
+        ExpiresIn=3600,
+    )
+
     return {
         "statusCode": 200,
         "headers": {"Content-Type": "application/json"},
@@ -145,6 +153,7 @@ def lambda_handler(event, context):
             {
                 "scan_id": scan_id,
                 "report_url": "s3://{}/{}".format(REPORTS_BUCKET, key),
+                "report_http_url": presigned_url,
                 "message": "Report generated successfully",
             }
         ),

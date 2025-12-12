@@ -232,6 +232,7 @@
       <button id="btnReportLatest">Generate Report (Latest Scan)</button>
       <button id="btnReportForId" class="secondary">Generate Report for Scan ID</button>
     </div>
+    <div id="reportLink" class="muted" style="margin-top:0.5rem;"></div>
     <pre id="reportOutput"><code>// Report response will appear here</code></pre>
   </div>
 
@@ -281,6 +282,29 @@
     el.appendChild(code);
   }
 
+  function setReportLink(json) {
+    const linkEl = document.getElementById('reportLink');
+    if (!linkEl) return;
+    linkEl.textContent = '';
+
+    const url = json && (json.report_http_url || json.report_url);
+    if (!url) {
+      return;
+    }
+
+    const label = document.createElement('span');
+    label.textContent = 'Open report: ';
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    a.textContent = 'View HTML report';
+
+    linkEl.appendChild(label);
+    linkEl.appendChild(a);
+  }
+
   async function callApi(path, body) {
     const base = getApiBase().replace(/\/$/, '');
     const url = base + path;
@@ -319,13 +343,16 @@
   document.getElementById('btnReportLatest').addEventListener('click', async () => {
     setStatus('Generating report for latest scan...');
     setJsonOutput('reportOutput', '// Generating report for latest scan...');
+    setReportLink(null);
     try {
       const { status, json } = await callApi('/report', { mode: 'LATEST_SCAN' });
       setStatus('Report completed (HTTP ' + status + ')');
       setJsonOutput('reportOutput', json);
+      setReportLink(json);
     } catch (e) {
       setStatus('Error');
       setJsonOutput('reportOutput', String(e));
+      setReportLink(null);
     }
   });
 
@@ -337,13 +364,16 @@
     }
     setStatus('Generating report for scan_id...');
     setJsonOutput('reportOutput', '// Generating report for scan_id ' + scanId + '...');
+    setReportLink(null);
     try {
       const { status, json } = await callApi('/report', { scan_id: scanId });
       setStatus('Report completed (HTTP ' + status + ')');
       setJsonOutput('reportOutput', json);
+      setReportLink(json);
     } catch (e) {
       setStatus('Error');
       setJsonOutput('reportOutput', String(e));
+      setReportLink(null);
     }
   });
 

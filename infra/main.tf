@@ -271,7 +271,8 @@ data "aws_iam_policy_document" "report_policy" {
       "dynamodb:GetItem",
       "dynamodb:Query",
       "dynamodb:Scan",
-      "s3:PutObject"
+      "s3:PutObject",
+      "s3:GetObject"
     ]
     resources = [
       aws_dynamodb_table.scans.arn,
