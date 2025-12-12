@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>BayGuard Demo Console</title>
+  <title>BayGuard – Live Security Posture Demo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     body {
@@ -13,23 +13,44 @@
       color: #f9fafb;
     }
     header {
-      padding: 1.5rem 2rem;
+      padding: 1.75rem 2rem 1.75rem;
       border-bottom: 1px solid #1f2937;
-      background: linear-gradient(90deg, #111827, #020617);
+      background: radial-gradient(circle at top left, #1d4ed8 0, #020617 45%);
     }
     header h1 {
       margin: 0;
-      font-size: 1.6rem;
+      font-size: 1.8rem;
+      letter-spacing: 0.02em;
     }
     header p {
-      margin: 0.4rem 0 0;
+      margin: 0.5rem 0 0.3rem;
       color: #9ca3af;
-      font-size: 0.9rem;
+      font-size: 0.95rem;
+    }
+    header .subline {
+      margin: 0.25rem 0 0;
+      color: #6b7280;
+      font-size: 0.8rem;
     }
     main {
       padding: 1.5rem 2rem 2rem;
       max-width: 1100px;
       margin: 0 auto;
+    }
+    .hero-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.25rem;
+      margin-top: 0.75rem;
+    }
+    .hero-row > div {
+      flex: 1 1 260px;
+    }
+    .pill-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 0.6rem;
     }
     .card {
       background: #020617;
@@ -151,6 +172,13 @@
       border: 1px solid rgba(34,197,94,0.4);
       margin-left: 0.5rem;
     }
+    footer {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0.75rem 2rem 1.5rem;
+      color: #4b5563;
+      font-size: 0.75rem;
+    }
     @media (max-width: 720px) {
       header, main {
         padding-left: 1rem;
@@ -161,26 +189,31 @@
 </head>
 <body>
 <header>
-  <h1>BayGuard Demo Console<span class="badge">MVP</span></h1>
-  <p>Trigger scans, generate reports, and get AI explanations against your AWS account.</p>
+  <h1>BayGuard<span class="badge">Live Demo</span></h1>
+  <p>Continuous AWS security posture with AI explanations your team can act on.</p>
+  <p class="subline">Use this console to drive customer demos end-to-end: scans, reports, and persona-aware AI narratives.</p>
 </header>
 <main>
   <div class="card">
-    <div class="row" style="align-items:flex-end; gap:1.25rem;">
+    <div class="hero-row" style="align-items:flex-end;">
       <div>
         <label for="apiBase">API Base URL</label>
         <input id="apiBase" type="text" placeholder="https://bayguard.bayareala8s.com" />
-        <div class="muted">If empty, the placeholder above will be used.</div>
+        <div class="muted">Typically your API Gateway custom domain (or the raw <code>http_api_url</code> Terraform output).</div>
       </div>
-      <div style="flex:0 0 auto;">
-        <span class="pill"><span class="dot"></span><span id="statusLabel">Idle</span></span>
+      <div style="flex:0 0 220px;">
+        <div class="pill" style="margin-bottom:0.45rem;"><span class="dot"></span><span id="statusLabel">Idle</span></div>
+        <div class="pill-group">
+          <span class="pill">S3 &nbsp;·&nbsp; IAM &nbsp;·&nbsp; Lambda</span>
+          <span class="pill">Step Functions &nbsp;·&nbsp; EventBridge &nbsp;·&nbsp; SQS</span>
+        </div>
       </div>
     </div>
   </div>
 
   <div class="card">
     <h2>1. Run a Scan</h2>
-    <p>Calls <code>POST /scan</code> to kick off a posture scan across S3, IAM, Lambda, Step Functions, EventBridge, SQS, and AWS Transfer Family.</p>
+    <p>Start a full posture scan of your AWS account. BayGuard inspects S3, IAM, Lambda, Step Functions, EventBridge, SQS, and AWS Transfer Family and stores findings in DynamoDB and S3.</p>
     <button id="btnScan">Run Scan</button>
     <div class="muted" id="lastScanMeta" style="margin-top:0.6rem;"></div>
     <pre id="scanOutput"><code>// Scan response will appear here</code></pre>
@@ -188,7 +221,7 @@
 
   <div class="card">
     <h2>2. Generate Report</h2>
-    <p>Calls <code>POST /report</code> to generate an HTML report in S3. You can use the latest scan or a specific <code>scan_id</code>.</p>
+    <p>Turn raw findings into a shareable HTML report stored in S3. Use the latest scan (recommended for demos) or target a specific <code>scan_id</code>.</p>
     <div class="row">
       <div>
         <label for="scanId">Scan ID (optional)</label>
@@ -204,7 +237,7 @@
 
   <div class="card">
     <h2>3. AI Explanation</h2>
-    <p>Send a single finding and choose a persona to see how BayGuard explains the risk and remediation.</p>
+    <p>Show how BayGuard explains a finding differently to developers, architects, and executives while staying aligned on the underlying risk.</p>
     <div class="row">
       <div>
         <label for="persona">Persona</label>
@@ -226,7 +259,9 @@
     <pre id="aiOutput"><code>// AI explanation response will appear here</code></pre>
   </div>
 </main>
-
+<footer>
+  <span>Tip: Before a customer call, run a scan and report in advance so the demo loads instantly. During the session, you can optionally trigger a fresh scan to prove it’s live.</span>
+</footer>
 <script>
   function getApiBase() {
     const input = document.getElementById('apiBase');
